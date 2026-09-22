@@ -1,0 +1,21 @@
+employee_id,name,department,role,status
+001,Ana,IT,Developer,active
+002,Bruno,Finance,Analyst,active
+003,Carlos,IT,Intern,active
+004,Daniela,HR,Manager,inactive
+005,Erica,Finance,Manager,active
+006,Fernando,Sales,Representative,active
+007,Gabriela,Marketing,Specialist,active
+008,Henrique,IT,DevOps Engineer,active
+009,Isabela,HR,Recruiter,active
+010,João,Finance,Accountant,inactive
+011,Karen,Legal,Counsel,active
+012,Lucas,Sales,Manager,active
+013,Mariana,Product,Product Owner,active
+014,Nicolas,IT,QA Analyst,active
+015,Olivia,Operations,Coordinator,inactive
+016,Paulo,Marketing,Designer,active
+017,Rafaela,Customer Support,Agent,active
+018,Rodrigo,IT,Database Administrator,active
+019,Sofia,Finance,Financial Controller,active
+020,Tiago,Operations,Logistics Specialist,inactive
