@@ -1,7 +1,7 @@
 import pandas as pd
 import sqlite3 as db
 
-conn = db.connect("sql/audit.db")
+conn = db.connect("audit.db")
 cn = conn.cursor()
 
 employees = pd.read_csv("data/employees.csv")
