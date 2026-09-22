@@ -1,7 +1,5 @@
 import pandas as pd
-
-employees = pd.read_csv("data/employees.csv")
-accesses = pd.read_csv("data/accesses.csv")
+from data_loader import employees, accesses
 
 print("Employees:")
 print(employees)
