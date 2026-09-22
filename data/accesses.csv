@@ -1,6 +1,7 @@
 employee_id,system,access_level
 001,GitLab,admin
 001,ERP,read
+001,CRM,read
 002,ERP,write
 003,ERP,admin
 004,HR_System,admin
