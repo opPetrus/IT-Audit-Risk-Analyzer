@@ -2,6 +2,21 @@ import sqlite3 as db
 
 conn = db.connect("audit.db")
 
+def calculate_risk_score(impact, likelihood):
+    return impact * likelihood
+
+
+def get_severity(score):
+    if score >= 7:
+        return "CRITICAL"
+    elif score >= 5:
+            return "HIGH"
+    elif score >= 3:
+        return "MEDIUM"
+    else:
+        return "LOW"
+    
+
 def detect_intern_admin(conn):
 
     query = """
@@ -21,6 +36,11 @@ def detect_intern_admin(conn):
     """
 
     result = conn.execute(query)
+    
+    impact = 3
+    likelihood = 2
+    risk_score = calculate_risk_score(impact, likelihood)
+    severity = get_severity(risk_score)
 
     findings = []
 
@@ -29,7 +49,10 @@ def detect_intern_admin(conn):
             "employee_id": row[0],
             "employee_name": row[1],
             "risk_type": "Excessive privilege",
-            "severity": "HIGH",
+            "impact": impact,
+            "likelihood": likelihood,
+            "risk_score": risk_score,
+            "severity": severity,
             "evidence": f"Role: {row[2]}, Status: {row[3]}, System: {row[4]}, Access: {row[5]}",
             "recommendation": "Review and reduce the employee's access privileges."
         }
@@ -56,6 +79,11 @@ def detect_inactive_access(conn):
 
     result = conn.execute(query)
 
+    impact = 3
+    likelihood = 3
+    risk_score = calculate_risk_score(impact, likelihood)
+    severity = get_severity(risk_score)
+
     findings = []
 
     for row in result:
@@ -63,7 +91,10 @@ def detect_inactive_access(conn):
             "employee_id": row[0],
             "employee_name": row[1],
             "risk_type": "Inactive Access",
-            "severity": "MEDIUM",
+            "impact": impact,
+            "likelihood": likelihood,
+            "risk_score": risk_score,
+            "severity": severity,
             "evidence": f"Status: {row[2]}, System: {row[3]}, Access: {row[4]}",
             "recommendation": "Review and revoke the employee's access privileges."
         }
@@ -92,6 +123,11 @@ def detect_excessive_access(conn):
 
     result = conn.execute(query)
 
+    impact = 2
+    likelihood = 2
+    risk_score = calculate_risk_score(impact, likelihood)
+    severity = get_severity(risk_score)
+
     findings = []
 
     for row in result:
@@ -99,7 +135,10 @@ def detect_excessive_access(conn):
             "employee_id": row[0],
             "employee_name": row[1],
             "risk_type": "Excessive Access",
-            "severity": "MEDIUM",
+            "impact": impact,
+            "likelihood": likelihood,
+            "risk_score": risk_score,
+            "severity": severity,
             "evidence": f"Status: {row[2]}, Role: {row[3]}, Number of Accesses: {row[4]}",
             "recommendation": "Review and reduce the employee's access privileges."
         }
@@ -126,6 +165,7 @@ def print_report(findings):
     for finding in findings:
         print(f"\n[{finding['severity']}] {finding['risk_type']}")
         print(f"Employee: {finding['employee_name']}")
+        print(f"Risk Score: {finding['risk_score']}")
         print(f"Evidence: {finding['evidence']}")
         print(f"Recommendation: {finding['recommendation']}")
 
