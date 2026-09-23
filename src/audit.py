@@ -147,12 +147,59 @@ def detect_excessive_access(conn):
 
     return findings
 
+
+def detect_sod_conflicts(conn):
+    query = """
+    SELECT
+        e.employee_id,
+        e.name,
+        COUNT(DISTINCT a.system)
+    FROM employees e
+    JOIN accesses a
+        ON a.employee_id = e.employee_id
+    WHERE e.status = 'active'
+    AND a.access_level = 'admin'
+    AND (
+        a.system = 'ERP'
+        OR a.system = 'Bank_Portal'
+    )
+    GROUP BY e.employee_id, e.name
+    HAVING COUNT(DISTINCT a.system) = 2;
+    """
+    
+    result = conn.execute(query)
+
+    impact = 3
+    likelihood = 2
+    risk_score = calculate_risk_score(impact, likelihood)
+    severity = get_severity(risk_score)
+
+    findings = []
+
+    for row in result:
+        finding = {
+            "employee_id": row[0],
+            "employee_name": row[1],
+            "risk_type": "SOD Conflict",
+            "impact": impact,
+            "likelihood": likelihood,
+            "risk_score": risk_score,
+            "severity": severity,
+            "evidence": f"ERP/admin + Bank_Portal/admin ({row[2]} conflicting accesses)",
+            "recommendation": "Review and reduce the employee's access privileges."
+        }
+
+        findings.append(finding)
+
+    return findings
+
 def run_audit(conn):
     findings = []
 
     findings.extend(detect_intern_admin(conn))
     findings.extend(detect_inactive_access(conn))
     findings.extend(detect_excessive_access(conn))
+    findings.extend(detect_sod_conflicts(conn))
 
     return findings
 
