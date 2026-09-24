@@ -193,6 +193,96 @@ def detect_sod_conflicts(conn):
 
     return findings
 
+
+def detect_suspicious_transactions(conn):
+    query = """
+    SELECT 
+        e.employee_id,
+        e.name,
+        t.transaction_id,
+        t.amount,
+        t.transaction_type,
+        t.approved
+    FROM employees e
+    JOIN transactions t
+        ON e.employee_id = t.employee_id
+    WHERE t.amount > 10000
+    AND t.approved = 0;
+    """
+
+    result = conn.execute(query)
+
+    impact = 3
+    likelihood = 2
+    risk_score = calculate_risk_score(impact, likelihood)
+    severity = get_severity(risk_score)
+
+    findings = []
+
+    for row in result:
+        finding = {
+            "employee_id": row[0],
+            "employee_name": row[1],
+            "transaction_id": row[2],
+            "risk_type": "Suspicious Transaction",
+            "impact": impact,
+            "likelihood": likelihood,
+            "risk_score": risk_score,
+            "severity": severity,
+            "evidence": f"Amount: {row[3]}, Type: {row[4]}, Approved: {row[5]}",
+            "recommendation": "Investigate the suspicious transaction and take appropriate action."
+        }
+
+        findings.append(finding)
+
+    return findings
+
+
+def detect_off_hours_transactions(conn):
+    query = """
+    SELECT
+        e.employee_id,
+        e.name,
+        t.transaction_id,
+        t.amount,
+        t.transaction_type,
+        t.timestamp,
+        t.approved
+    FROM employees e
+    JOIN transactions t
+        ON e.employee_id = t.employee_id
+    WHERE strftime('%H:%M', t.timestamp) BETWEEN '00:00' AND '05:59'
+    """
+
+    result = conn.execute(query)
+
+    impact = 2
+    likelihood = 2
+    risk_score = calculate_risk_score(impact, likelihood)
+    severity = get_severity(risk_score)
+
+    findings = []
+
+    for row in result:
+        finding = {
+            "employee_id": row[0],
+            "employee_name": row[1],
+            "transaction_id": row[2],
+            "timestamp": row[5],
+            "risk_type": "Off-Hours Transaction",
+            "impact": impact,
+            "likelihood": likelihood,
+            "risk_score": risk_score,
+            "severity": severity,
+            "evidence": f"Amount: {row[3]}, Type: {row[4]}, Approved: {row[6]}",
+            "recommendation": "Review the transaction and verify whether the timing was authorized."
+        }
+
+        findings.append(finding)
+
+    return findings
+
+
 def run_audit(conn):
     findings = []
 
@@ -200,25 +290,66 @@ def run_audit(conn):
     findings.extend(detect_inactive_access(conn))
     findings.extend(detect_excessive_access(conn))
     findings.extend(detect_sod_conflicts(conn))
-
+    findings.extend(detect_suspicious_transactions(conn))
+    findings.extend(detect_off_hours_transactions(conn))
     return findings
 
 
 def print_report(findings):
-    print("\n" + "=" * 50)
-    print("IT AUDIT RISK ANALYZER")
-    print("=" * 50)
+    print("\n" + "=" * 60)
+    print("AUDIT SUMMARY")
+    print("=" * 60)
+
+    print(f"\nTotal Findings: {len(findings)}")
+
+    critical = 0
+    high = 0
+    medium = 0
+    low = 0
+
+    for finding in findings:
+        if finding['severity'] == 'CRITICAL':
+            critical += 1
+        elif finding['severity'] == 'HIGH':
+            high += 1
+        elif finding['severity'] == 'MEDIUM':
+            medium += 1
+        elif finding['severity'] == 'LOW':  
+            low += 1
+
+    print(f"\nCritical: {critical}")
+    print(f"High: {high}")
+    print(f"Medium: {medium}")
+    print(f"Low: {low}")
+
+    print("\n" + "=" * 60)
+    print("AUDIT FINDINGS")
+    print("=" * 60)
+
+    severity_order = {
+        "CRITICAL": 0,
+        "HIGH": 1,
+        "MEDIUM": 2,
+        "LOW": 3
+    }
+
+    findings = sorted(
+        findings,
+        key=lambda finding: severity_order[finding["severity"]]
+    )
 
     for finding in findings:
         print(f"\n[{finding['severity']}] {finding['risk_type']}")
         print(f"Employee: {finding['employee_name']}")
+        if 'transaction_id' in finding:
+            print(f"Transaction ID: {finding['transaction_id']}")
+        if 'timestamp' in finding:
+            print(f"Timestamp: {finding['timestamp']}")
         print(f"Risk Score: {finding['risk_score']}")
         print(f"Evidence: {finding['evidence']}")
         print(f"Recommendation: {finding['recommendation']}")
 
-    print("\n" + "=" * 50)
-    print(f"{len(findings)} risk(s) detected")
-    print("=" * 50 + "\n")
+    print("\n" + "=" * 60 + "\n")
 
 
 findings = run_audit(conn)

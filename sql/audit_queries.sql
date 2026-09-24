@@ -22,3 +22,7 @@ JOIN accesses a
     ON e.employee_id = a.employee_id
 WHERE a.access_level = 'admin'
 AND e.role = 'Intern';
+
+--------------------------------------
+
+SELECT * FROM transactions;

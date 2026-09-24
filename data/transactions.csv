@@ -1,0 +1,16 @@
+transaction_id,employee_id,amount,timestamp,transaction_type,approved
+T001,001,250.00,2026-09-20 09:15:00,purchase,true
+T002,002,180.00,2026-09-20 10:30:00,purchase,true
+T003,003,9500.00,2026-09-20 11:00:00,payment,true
+T004,004,120.00,2026-09-20 11:45:00,purchase,true
+T005,005,15000.00,2026-09-20 12:10:00,transfer,false
+T006,006,320.00,2026-09-20 13:20:00,purchase,true
+T007,007,450.00,2026-09-20 14:00:00,purchase,true
+T008,008,22000.00,2026-09-20 14:30:00,transfer,true
+T009,009,75.00,2026-09-20 15:00:00,purchase,true
+T010,010,12500.00,2026-09-20 15:30:00,transfer,false
+T011,011,300.00,2026-09-20 16:00:00,purchase,true
+T012,012,200.00,2026-09-20 16:20:00,purchase,true
+T013,013,18000.00,2026-09-20 17:00:00,transfer,true
+T014,014,95.00,2026-09-20 17:15:00,purchase,true
+T015,015,400.00,2026-09-20 17:30:00,purchase,true
