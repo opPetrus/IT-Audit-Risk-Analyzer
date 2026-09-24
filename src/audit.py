@@ -2,7 +2,7 @@ import sqlite3 as db
 
 def connect_database():
     try:
-        conn = db.connect("inex.db")
+        conn = db.connect("audit.db")
         return conn
     except db.Error as e:
         print(f"Database error: {e}")
