@@ -1,6 +1,15 @@
 import sqlite3 as db
 
-conn = db.connect("audit.db")
+def connect_database():
+    try:
+        conn = db.connect("inex.db")
+        return conn
+    except db.Error as e:
+        print(f"Database error: {e}")
+        return None
+
+conn = connect_database()
+
 
 def calculate_risk_score(impact, likelihood):
     return impact * likelihood
@@ -284,15 +293,21 @@ def detect_off_hours_transactions(conn):
 
 
 def run_audit(conn):
-    findings = []
+    try:
+        findings = []
 
-    findings.extend(detect_intern_admin(conn))
-    findings.extend(detect_inactive_access(conn))
-    findings.extend(detect_excessive_access(conn))
-    findings.extend(detect_sod_conflicts(conn))
-    findings.extend(detect_suspicious_transactions(conn))
-    findings.extend(detect_off_hours_transactions(conn))
-    return findings
+        findings.extend(detect_intern_admin(conn))
+        findings.extend(detect_inactive_access(conn))
+        findings.extend(detect_excessive_access(conn))
+        findings.extend(detect_sod_conflicts(conn))
+        findings.extend(detect_suspicious_transactions(conn))
+        findings.extend(detect_off_hours_transactions(conn))
+
+        return findings
+
+    except db.Error as e:
+        print(f"Audit error: {e}")
+        return None
 
 
 def print_report(findings):
@@ -352,8 +367,8 @@ def print_report(findings):
     print("\n" + "=" * 60 + "\n")
 
 
-findings = run_audit(conn)
-
-print_report(findings)
-
-conn.close()
+if conn:
+    findings = run_audit(conn)
+    if findings is not None:
+        print_report(findings)
+    conn.close()
